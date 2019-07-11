@@ -1,12 +1,28 @@
-const ERRNO = {
+export const ERRNO = {
     SUCCESS: 0,
 };
 
-const ERRMSG = {
+export const ERRMSG = {
     SUCCESS: '成功',
 };
 
-module.exports = {
-    ERRNO,
-    ERRMSG
-};
+// 账号状态
+export const USER_STATUS = {
+    DEFINE: {
+      ON: 1,
+      OFF: 0,
+    },
+    DATA: {
+      1: '启用',
+      0: '禁用',
+    },
+    COLOR: {
+      1: 'green',
+      0: 'red',
+    },
+  };
+
+// module.exports = {
+//     ERRNO,
+//     ERRMSG
+// };

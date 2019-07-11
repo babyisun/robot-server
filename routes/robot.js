@@ -34,4 +34,11 @@ router.post('/', function (req, res, next) {
 
 });
 
+// 发送消息
+router.get('/doit', function (req, res, next) {
+    res.json(json({
+        a: 123
+    }));
+});
+
 module.exports = router;
