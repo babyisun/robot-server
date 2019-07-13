@@ -1,7 +1,5 @@
-const axios = require('axios');
-const {
-    ERRNO, ERRMSG
-} = require('./const');
+import axios from 'axios';
+import { ERROR } from './const';
 
 const createAjax = (base_url) => {
     const ajax = axios.create({
@@ -32,7 +30,7 @@ const createAjax = (base_url) => {
     return ajax;
 }
 
-const json = (data, msg = ERRMSG.SUCCESS, no = ERRNO.SUCCESS) => ({
+const json = (data, msg = ERROR.MSG.SUCCESS, no = ERROR.NO.SUCCESS) => ({
     data: data,
     errno: no,
     errmsg: msg,

@@ -1,4 +1,4 @@
-import AV from '@/utils/av';
+import AV from 'leanengine';
 
 class Robot extends AV.Object {
 

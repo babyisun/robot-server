@@ -10,7 +10,8 @@ import {
     LEVEL
 } from '../config';
 import {
-    USER_STATUS
+    USER_STATUS,
+    ERROR,
 } from '../utils/const';
 
 const router = express.Router();
@@ -65,7 +66,11 @@ router.post('/login', (req, res, next) => {
 
 // 用户信息
 router.get('/profile', (req, res) => {
-    res.json(json(req.currentUser));
+    if (req.currentUser) {
+        res.json(json(req.currentUser));
+    } else {
+        res.json(json(null, ERROR.MSG.NO_LOGIN, ERROR.NO.NO_LOGIN));
+    }
 });
 
 

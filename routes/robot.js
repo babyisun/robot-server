@@ -1,10 +1,18 @@
 'use strict';
-const router = require('express').Router();
-const moment = require('moment');
-const {
+import express from 'express';
+import AV from 'leanengine';
+import moment from 'moment';
+import {
     ajax,
     json
-} = require('../utils/ajax');
+} from '../utils/ajax';
+import {
+    STATUS,
+    ERROR
+} from '../utils/const';
+import RobotModel from '../model/robot';
+
+const router = express.Router();
 
 // 发送消息
 router.post('/', function (req, res, next) {
@@ -34,11 +42,76 @@ router.post('/', function (req, res, next) {
 
 });
 
-// 发送消息
-router.get('/doit', function (req, res, next) {
-    res.json(json({
-        a: 123
-    }));
+// 列表
+router.get('/list', (req, res, next) => {
+    const {
+        id
+    } = req.currentUser;
+    const {
+        name,
+        skip,
+        limit
+    } = req.query;
+    // console.log('user', req.currentUser.id);
+    // console.log('body', req.query);
+
+    const query = new AV.Query(RobotModel)
+        .equalTo('user', id)
+        .contains('name', name || '')
+        .descending('createdAt');
+    AV.Promise.all([query.find(),
+        query.skip(skip).limit(limit).count()
+    ]).then((data) => {
+        // console.log('query', data);
+        res.json(json(data));
+    }).catch(next);
 });
+
+// 列表
+router.post('/create', async (req, res, next) => {
+    const {
+        id
+    } = req.currentUser;
+    const {
+        name,
+        groupName,
+        url,
+        key
+    } = req.body;
+    const query = new AV.Query(RobotModel)
+        .equalTo('user', id)
+        .equalTo('key', key);
+    const exists = await query.count();
+    console.log('exists', exists);
+    if (exists === 0) {
+        const robotModel = new RobotModel({
+            name,
+            groupName,
+            url,
+            key,
+            status: STATUS.DEFINE.ON,
+            user: id,
+        });
+        const result = await robotModel.save();
+        console.log('result', result);
+        if (result) {
+            const robot_msg = {
+                "msgtype": "markdown",
+                "markdown": {
+                    "content": `大家好。我叫<font color=\"info\">${name}</font>，是一个初来乍到的机器人。\n 创建时间：${moment().format('YYYY-MM-DD HH:mm:ss')} \n ------------------------------------------- \n 本消息来自[小机机](http://127.0.0.1:3000)，智能机器人助手 \n <font color=\"comment\">这是一条连通性测试消息，正式消息不包含链接</font> \n`,
+                }
+            };
+            const send_result = await ajax.post(url, robot_msg);
+            console.log('send', send_result);
+            // 微信并没有返回确切的值，调用即视为成功
+            res.json(json(null));
+        } else {
+            res.json(json(null, '添加失败，请稍后再试', ERROR.NO.ERROR));
+        }
+    } else {
+        res.json(json(null, '该机器人已在列表中', ERROR.NO.ERROR));
+    }
+});
+
 
 module.exports = router;
