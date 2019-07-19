@@ -42,6 +42,24 @@ router.post('/', function (req, res, next) {
 
 });
 
+// 发送消息
+router.post('/text', function (req, res, next) {
+    var {
+        url,
+        text,
+    } = req.body;
+    var post_data = {
+        "msgtype": "text",
+        "content": text + "\n 这是一条定时发送消息：" + moment().format('YYYY-MM-DD HH:mm:ss'),
+        // "mentioned_list": ["wangqing", "@all"],
+    }
+
+    ajax.post(url, post_data).then((data) => {
+        res.json(json(data));
+    }).catch(next);
+
+});
+
 // 列表
 router.get('/list', (req, res, next) => {
     const {
@@ -63,6 +81,24 @@ router.get('/list', (req, res, next) => {
         query.skip(skip).limit(limit).count()
     ]).then((data) => {
         // console.log('query', data);
+        res.json(json(data));
+    }).catch(next);
+});
+
+// 列表
+router.get('/detail', (req, res, next) => {
+    const {
+        id
+    } = req.currentUser;
+    const {
+        objectId,
+    } = req.query;
+    console.log(id, objectId);
+    const query = new AV.Query(RobotModel)
+        .equalTo('objectId', objectId)
+        .equalTo('user', id);
+    query.find().then((data) => {
+        console.log('robot', data);
         res.json(json(data));
     }).catch(next);
 });
@@ -98,7 +134,7 @@ router.post('/create', async (req, res, next) => {
             const robot_msg = {
                 "msgtype": "markdown",
                 "markdown": {
-                    "content": `大家好。我叫<font color=\"info\">${name}</font>，是一个初来乍到的机器人。\n 创建时间：${moment().format('YYYY-MM-DD HH:mm:ss')} \n ------------------------------------------- \n 本消息来自[小机机](http://127.0.0.1:3000)，智能机器人助手 \n <font color=\"comment\">这是一条连通性测试消息，正式消息不包含链接</font> \n`,
+                    "content": `大家好。我叫<font color=\"info\">${name}</font>，是一个初来乍到的机器人。\n ------------------------------------------- \n 创建时间：${moment().format('YYYY-MM-DD HH:mm:ss')} \n 本消息来自[小机机](http://127.0.0.1:3000)，智能机器人助手 \n <font color=\"comment\">这是一条连通性测试消息，正式消息不包含分割线以下内容</font> \n`,
                 }
             };
             const send_result = await ajax.post(url, robot_msg);

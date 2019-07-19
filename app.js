@@ -48,11 +48,14 @@ app.get('/', function(req, res) {
 
 import ucenter from './routes/ucenter';
 import robot from './routes/robot';
+import task from './routes/task';
 
 // 可以将一类的路由单独保存在一个文件中
 // app.use('/todos', require('./routes/todos'));
 app.use('/robot', robot);
 app.use('/ucenter', ucenter);
+app.use('/task', task);
+
 
 
 app.use(function(req, res, next) {
